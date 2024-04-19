@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:example/model/model.dart';
 import 'package:example/resources/constants.dart';
+import 'package:example/utils/routes/route_name.dart';
 import 'package:example/utils/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +35,7 @@ class SignUpViewModel extends ChangeNotifier {
         password: passwordController.text.trim(),
       )
           .then((value) {
-        dataToFirestore();
+        dataToFirestore(userNameController.text, emailController.text);
         userNameController.clear();
         emailController.clear();
         passwordController.clear();
@@ -42,6 +43,8 @@ class SignUpViewModel extends ChangeNotifier {
         notifyListeners();
       });
       Utils.successMessage(context, "Registered Successfully");
+      Navigator.pushNamedAndRemoveUntil(
+          context, RouteNames.loginScreen, (route) => false);
     } on FirebaseAuthException catch (e) {
       isLoading = false;
       notifyListeners();
@@ -50,14 +53,13 @@ class SignUpViewModel extends ChangeNotifier {
     }
   }
 
-  Future dataToFirestore() async {
+  Future dataToFirestore(name, email) async {
     await firestore
         .collection(AppConstants.collectionName)
         .doc(auth.currentUser!.uid)
         .set({
-      'Name': userNameController.text,
-      'Email': emailController.text,
-      'Password': passwordController.text,
+      'Name': name,
+      'Email': email,
     });
   }
 
@@ -77,9 +79,12 @@ class SignUpViewModel extends ChangeNotifier {
             accessToken: googleSignInAuthentication.accessToken);
         UserCredential result = await auth.signInWithCredential(authCredential);
         User? user = result.user;
+        dataToFirestore(user!.displayName, user.email);
         Utils.successMessage(context, "Log in successfully");
         isGoogleLoading = false;
         notifyListeners();
+        Navigator.pushNamedAndRemoveUntil(
+            context, RouteNames.mainScreen, (route) => false);
       }
     } on FirebaseAuthException catch (e) {
       isGoogleLoading = false;

@@ -5,7 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:example/utils/routes/route.dart';
 import 'package:example/utils/routes/route_name.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
           // primarySwatch: Colors.blue,
           // textTheme: Typography.englishLike2018.apply(fontSizeFactor: 1.sp),
           // ),
-          initialRoute: RouteNames.loginScreen,
+          initialRoute: RouteNames.splashScreen,
           onGenerateRoute: Routes.generateRoute,
           home: child,
         );

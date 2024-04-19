@@ -1,3 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:example/resources/constants.dart';
+import 'package:example/utils/routes/route_name.dart';
 import 'package:example/utils/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +17,7 @@ class LoginViewModel extends ChangeNotifier {
   ValueNotifier<bool> obscureText = ValueNotifier<bool>(true);
   final FirebaseAuth auth = FirebaseAuth.instance;
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
   String error = '';
   bool isLoading = false, isGoogleLoading = false;
 
@@ -30,6 +34,8 @@ class LoginViewModel extends ChangeNotifier {
       Utils.successMessage(context, "Log in successfully");
       emailController.clear();
       passwordController.clear();
+      Navigator.pushNamedAndRemoveUntil(
+          context, RouteNames.mainScreen, (route) => false);
     } on FirebaseAuthException catch (e) {
       isLoading = false;
       notifyListeners();
@@ -54,7 +60,13 @@ class LoginViewModel extends ChangeNotifier {
             accessToken: googleSignInAuthentication.accessToken);
         UserCredential result = await auth.signInWithCredential(authCredential);
         User? user = result.user;
+        dataToFirestore(user!.displayName, user.email);
         Utils.successMessage(context, "Log in successfully");
+        isGoogleLoading = false;
+        notifyListeners();
+        Navigator.pushNamedAndRemoveUntil(
+            context, RouteNames.mainScreen, (route) => false);
+      } else {
         isGoogleLoading = false;
         notifyListeners();
       }
@@ -63,5 +75,15 @@ class LoginViewModel extends ChangeNotifier {
       notifyListeners();
       Utils.errorMessage(context, e.message);
     }
+  }
+
+  Future dataToFirestore(name, email) async {
+    await firestore
+        .collection(AppConstants.collectionName)
+        .doc(auth.currentUser!.uid)
+        .set({
+      'Name': name,
+      'Email': email,
+    });
   }
 }
