@@ -2,7 +2,6 @@ import 'package:example/resources/colors.dart';
 import 'package:example/resources/components/round_button.dart';
 import 'package:example/utils/routes/route_name.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 class SplashView extends StatefulWidget {
